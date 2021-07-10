@@ -1,0 +1,32 @@
+version: '3.3'
+services:
+  jenkins-auto-agent:
+    build:
+        dockerfile: Dockerfile
+        context: .
+    container_name: jenkins-auto-agent
+    command: 'java -jar /usr/share/jenkins/agent.jar -jnlpUrl ${JENKINS_JNLPURL} -secret ${JENKINS_SECRET} -workDir ${JENKINS_AGENT_WORKDIR}'
+    environment:
+      JENKINS_JNLP_URL: ${JENKINS_JNLP_URL}
+      JENKINS_SECRET: ${JENKINS_SECRET}
+      JENKINS_AGENT_WORKDIR: ${JENKINS_AGENT_WORKDIR}
+    volumes:
+      - jenkins-auto-agent:/home/jenkins/agent:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    networks:
+      - jenkins-auto-agent
+    env_file:
+      - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  jenkins-auto-agent:
+    driver: local
+
+networks:
+  jenkins-auto-agent:
+    driver: bridge
